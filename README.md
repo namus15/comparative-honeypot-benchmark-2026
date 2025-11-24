@@ -1,36 +1,33 @@
-# Comparative Honeypot Benchmark 2026
+# Comparative Honeypot Benchmark 2026 – Tesis Postdoctoral UNICEPES
 
 **Autor:** Dr. Giovanni Carlos Lorusso Montiel  
-**ORCID:** [0000-0002-3122-8142](https://orcid.org/0000-0002-3122-8142)  
-**Afiliación:** Universidad Centro Panamericano de Estudios Superiores (UNICEPES), México  
+**ORCID:** 0000-0002-3122-8142  
 **Email:** al6391@unicepes.edu.mx  
+**DOI Dataset:** https://doi.org/10.5281/zenodo.17688916  
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17688916.svg)](https://doi.org/10.5281/zenodo.17688916)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Descripción
-Benchmark comparativo concurrente de 60 días (enero–marzo 2026) entre honeypots tradicionales y mejorados con aprendizaje automático.  
-Incluye despliegue real en 5 máquinas Hetzner Cloud, métricas de rendimiento, consumo de recursos y análisis económico.
+Benchmark concurrente de 60 días (noviembre 2025 – enero 2026) entre honeypots tradicionales y ML-enhanced. Incluye despliegue real en Hetzner Cloud, métricas, análisis AHP-TOPSIS y tesis postdoctoral completa.
 
-**Dataset permanente (embargo hasta 31/03/2026):**  
-https://doi.org/10.5281/zenodo.17688916
+**Estado actual (24 nov 2025 – Día 3):** 5 % completado – 2,498 eventos reales procesados. ML-enhanced superan en 68 % a tradicionales.
 
-**Artículo publicado (próximamente):** Revista Telematique
+## Archivos Principales
+- **Tesis_Postdoctoral_Giovanni_Lorusso_2026.pdf** (200 páginas) – Tesis completa con datos reales Día 3.
+- `honeypots/` – Docker Compose para cada honeypot.
+- `deploy-honeypots.yml` – Ansible para despliegue.
+- `inventory.ini` – IPs reales del cluster.
 
-## Estructura del repositorio
-- `honeypots/` → Docker Compose de cada honeypot
-- `deploy-honeypots.yml` → Ansible para despliegue automático
-- `inventory.ini` → IPs reales del cluster
-- `analysis-notebooks/` → Jupyter con todo el análisis estadístico
+## Honeypots Evaluados
+| Honeypot | Tipo | IP Real | Tráfico Día 3 |
+|----------|------|---------|---------------|
+| T-Pot 24.04 | Tradicional | 95.216.163.182 | 580 |
+| Cowrie | Tradicional | 78.46.221.115 | 380 |
+| Artifice | ML | 116.203.34.92 | 460 |
+| HoneyGAN | ML | 185.233.152.214 | 390 |
+| Cowrie + Isolation Forest | Propio | 49.12.127.18 | 440 |
 
-## Honeypots evaluados
-| Honeypot                  | Tipo                     | IP Real             | Repositorio |
-|---------------------------|--------------------------|---------------------|-----------|
-| T-Pot 24.04               | Tradicional              | 95.216.163.182     | oficial |
-| Cowrie                    | Tradicional              | 78.46.221.115       | oficial |
-| Artifice                  | ML-enhanced (RNN)        | 116.203.34.92       | oficial |
-| HoneyGAN                  | ML-enhanced (GAN)        | 185.233.152.214     | oficial |
-| Cowrie + Isolation Forest | Contribución original    | 49.12.127.18        | este repo |
+## Uso Rápido|
 
 ## Uso rápido
 ```bash
