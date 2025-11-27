@@ -3,7 +3,7 @@
 **Autor:** Dr. Giovanni Carlos Lorusso Montiel  
 **ORCID:** 0000-0002-3122-8142  
 **Email:** al6391@unicepes.edu.mx  
-**DOI Dataset:** https://doi.org/10.5281/zenodo.17688916  
+**DOI Dataset:**(https://zenodo.org/badge/DOI/10.5281/zenodo.17688915.svg)](https://doi.org/10.5281/zenodo.17688915) 
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17688916.svg)](https://doi.org/10.5281/zenodo.17688916)
 
