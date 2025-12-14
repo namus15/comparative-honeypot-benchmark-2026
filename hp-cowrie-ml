@@ -1,6 +1,1 @@
-hp-cowrie-ml/
-├── docker-compose.yml
-├── Dockerfile
-├── cowrie.cfg
-└── isolationforest_detector.py
-    Readme.md
+
