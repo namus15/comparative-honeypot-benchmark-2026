@@ -34,3 +34,18 @@ Benchmark concurrente de 60 días (noviembre 2025 – enero 2026) entre honeypot
 git clone https://github.com/namus15/comparative-honeypot-benchmark-2026.git
 cd comparative-honeypot-benchmark-2026
 ansible-playbook -i inventory.ini deploy-honeypots.yml
+# Cowrie + Isolation Forest (Baseline ML-enhanced 2026)
+
+**Aporte original**: Dr. Giovanni Carlos Lorusso Montiel
+
+**Descripción**: Extensión ligera de Cowrie con Isolation Forest (scikit-learn) para detección de anomalías en tiempo real + mutación automática de banners SSH.
+
+**Características**:
+- Detección no supervisada de sesiones maliciosas
+- Mutación de banner cada 500 sesiones o streak de anomalías
+- Bajo consumo (~34% CPU promedio)
+- Logs JSON para análisis fácil
+
+**Despliegue**:
+```bash
+docker-compose up -d
