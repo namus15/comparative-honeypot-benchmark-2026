@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  cowrie-ml:
+    build: .
+    container_name: cowrie-ml-baseline
+    restart: unless-stopped
+    ports:
+      - "2222:2222/tcp"  # Puerto SSH expuesto
+    volumes:
+      - cowrie-data:/cowrie/var/lib/cowrie/
+      - cowrie-logs:/cowrie/var/log/cowrie/
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      - TZ=Europe/Berlin  # Ajusta a tu zona
+volumes:
+  cowrie-data:
+  cowrie-logs:
