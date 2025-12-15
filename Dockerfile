@@ -9,3 +9,4 @@ COPY isolationforest_detector.py /cowrie/src/isolationforest_detector.py
 
 # Ejecutar Cowrie + detector en paralelo
 CMD /opt/cowrie/bin/cowrie start -n && python /cowrie/src/isolationforest_detector.py
+
