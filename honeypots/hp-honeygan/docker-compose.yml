@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  honeygan:
+    image: mariocandela/beelzebub:latest  # Respuestas dinámicas y evasión avanzada
+    restart: unless-stopped
+    ports:
+      - "22:22/tcp"
+      - "80:80/tcp"
