@@ -1,31 +1,25 @@
 ---
 # deploy-honeypots.yml
-# Despliegue automático del cluster honeypot benchmark 2026
+# Playbook Ansible para desplegar el cluster de honeypots benchmark 2026
 # Autor: Dr. Giovanni Carlos Lorusso Montiel
 # Fecha: Diciembre 2025
+# Requisitos: Instalar colección community.docker (ansible-galaxy collection install community.docker)
 
-- name: Preparar sistema base en todas las VMs
+- name: Preparación base en todas las VMs
   hosts: all
   become: yes
   tasks:
-    - name: Actualizar paquetes y sistema
+    - name: Actualizar sistema
       apt:
         update_cache: yes
         upgrade: dist
-        cache_valid_time: 3600
 
     - name: Instalar Docker y Docker Compose
       apt:
         name:
           - docker.io
-          - docker-compose
+          - docker-compose-plugin  # Para Compose v2
         state: present
-
-    - name: Añadir usuario root a grupo docker
-      user:
-        name: root
-        groups: docker
-        append: yes
 
 - name: Desplegar honeypots individuales
   hosts: honeypots
@@ -37,48 +31,31 @@
         state: directory
         mode: '0755'
 
-    - name: Copiar carpeta del honeypot correspondiente
+    - name: Copiar carpeta específica del honeypot (basado en hostname)
       copy:
         src: "honeypots/{{ inventory_hostname }}/"
         dest: /opt/honeypot/
         mode: preserve
 
-    - name: Levantar contenedor Docker
-      docker_compose:
+    - name: Desplegar contenedor con Docker Compose
+      community.docker.docker_compose:
         project_src: /opt/honeypot/
         state: present
         restarted: yes
-      register: docker_output
+      register: compose_output
 
-    - name: Mostrar estado del contenedor
+    - name: Mostrar resultado del despliegue
       debug:
-        msg: "{{ docker_output }}"
+        var: compose_output
 
-- name: Configuración final en VM central (monitor + tcpreplay)
+- name: Configuración opcional en VM central (monitor + tcpreplay)
   hosts: central-monitor
   become: yes
   tasks:
-    - name: Instalar herramientas de monitoreo y réplica
+    - name: Instalar herramientas de réplica y monitoreo
       apt:
         name:
           - tcpdump
           - tcpreplay
           - prometheus-node-exporter
         state: present
-
-    - name: Crear script de réplica de tráfico (opcional)
-      copy:
-        dest: /usr/local/bin/replicate-traffic.sh
-        content: |
-          #!/bin/bash
-          tcpdump -i any port not 22 -w /traffic/capture.pcap -G 3600 -W 10 &
-          while true; do
-            tcpreplay -i eth0 --loop=0 /traffic/capture.pcap 2>/dev/null || true
-            sleep 1
-          done
-        mode: '0755'
-
-    - name: Iniciar réplica en background (opcional)
-      shell: nohup /usr/local/bin/replicate-traffic.sh &
-      async: 45
-      poll: 0
