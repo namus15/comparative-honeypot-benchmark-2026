@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  artifice:
+    image: mariocandela/beelzebub:latest  # Alta interacción con ML-like features
+    restart: unless-stopped
+    ports:
+      - "2222:2222/tcp"
