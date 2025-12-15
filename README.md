@@ -13,7 +13,7 @@ Evaluación concurrente de 6 honeypots open-source (3 tradicionales, 3 ML-enhanc
 Dataset público (embargo hasta 31/03/2026):  
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17688915.svg)](https://doi.org/10.5281/zenodo.17688915)
 
-## Infraestructura Real (Hetzner Cloud)
+## Infraestructura (Hetzner Cloud)
 | Honeypot                          | IP Pública           |
 |-----------------------------------|----------------------|
 | T-Pot 24.04                       | 95.216.163.182       |
