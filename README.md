@@ -30,6 +30,13 @@ Dataset público (embargo hasta 31/03/2026):
 cp inventory.example.ini inventory.ini
 
 # Edita inventory.ini con tus IPs
+## Estructura honeypots
+- hp-tpot: T-Pot 24.04
+- hp-cowrie: Cowrie puro
+- hp-dionaea: Dionaea
+- hp-artifice: Artifice (RNN SSH)
+- hp-honeygan: HoneyGAN equivalente
+- hp-cowrie-ml: Baseline Cowrie + Isolation Forest (aporte original)
 
 # Despliega todo el cluster
 ansible-playbook -i inventory.ini deploy-honeypots.yml
