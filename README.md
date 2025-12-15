@@ -47,5 +47,8 @@ ansible-playbook -i inventory.ini deploy-honeypots.yml
 - Logs JSON para análisis fácil
 
 **Despliegue**:
+## Baseline Cowrie + Isolation Forest
+Código completo: honeypots/hp-cowrie-ml/
+Aporte original: Detección anomalías + mutación banners.
 ```bash
 docker-compose up -d
