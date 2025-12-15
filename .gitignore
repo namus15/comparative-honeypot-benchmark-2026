@@ -1,0 +1,3 @@
+inventory.ini
+*.log
+__pycache__/
