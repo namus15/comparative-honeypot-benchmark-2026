@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  cowrie:
+    image: cowrie/cowrie:latest
+    restart: unless-stopped
+    ports:
+      - "2222:2222/tcp"
