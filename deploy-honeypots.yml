@@ -1,0 +1,84 @@
+---
+# deploy-honeypots.yml
+# Despliegue automático del cluster honeypot benchmark 2026
+# Autor: Dr. Giovanni Carlos Lorusso Montiel
+# Fecha: Diciembre 2025
+
+- name: Preparar sistema base en todas las VMs
+  hosts: all
+  become: yes
+  tasks:
+    - name: Actualizar paquetes y sistema
+      apt:
+        update_cache: yes
+        upgrade: dist
+        cache_valid_time: 3600
+
+    - name: Instalar Docker y Docker Compose
+      apt:
+        name:
+          - docker.io
+          - docker-compose
+        state: present
+
+    - name: Añadir usuario root a grupo docker
+      user:
+        name: root
+        groups: docker
+        append: yes
+
+- name: Desplegar honeypots individuales
+  hosts: honeypots
+  become: yes
+  tasks:
+    - name: Crear directorio de trabajo
+      file:
+        path: /opt/honeypot
+        state: directory
+        mode: '0755'
+
+    - name: Copiar carpeta del honeypot correspondiente
+      copy:
+        src: "honeypots/{{ inventory_hostname }}/"
+        dest: /opt/honeypot/
+        mode: preserve
+
+    - name: Levantar contenedor Docker
+      docker_compose:
+        project_src: /opt/honeypot/
+        state: present
+        restarted: yes
+      register: docker_output
+
+    - name: Mostrar estado del contenedor
+      debug:
+        msg: "{{ docker_output }}"
+
+- name: Configuración final en VM central (monitor + tcpreplay)
+  hosts: central-monitor
+  become: yes
+  tasks:
+    - name: Instalar herramientas de monitoreo y réplica
+      apt:
+        name:
+          - tcpdump
+          - tcpreplay
+          - prometheus-node-exporter
+        state: present
+
+    - name: Crear script de réplica de tráfico (opcional)
+      copy:
+        dest: /usr/local/bin/replicate-traffic.sh
+        content: |
+          #!/bin/bash
+          tcpdump -i any port not 22 -w /traffic/capture.pcap -G 3600 -W 10 &
+          while true; do
+            tcpreplay -i eth0 --loop=0 /traffic/capture.pcap 2>/dev/null || true
+            sleep 1
+          done
+        mode: '0755'
+
+    - name: Iniciar réplica en background (opcional)
+      shell: nohup /usr/local/bin/replicate-traffic.sh &
+      async: 45
+      poll: 0
