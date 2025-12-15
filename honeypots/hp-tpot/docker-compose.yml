@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  tpot:
+    image: dtagdevsec/tpotce:24.04.1
+    restart: unless-stopped
+    ports:
+      - "1-65535:1-65535/tcp"
+      - "1-65535:1-65535/udp"
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
