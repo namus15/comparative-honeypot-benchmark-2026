@@ -34,6 +34,13 @@ cp inventory.example.ini inventory.ini
 - hp-tpot: T-Pot 24.04
 - hp-cowrie: Cowrie puro
 - hp-dionaea: Dionaea
+## Estructura honeypots
+- hp-tpot: T-Pot 24.04
+- hp-cowrie: Cowrie puro
+- hp-dionaea: Dionaea
+- hp-artifice: Artifice (RNN SSH)
+- hp-honeygan: HoneyGAN equivalente
+- hp-cowrie-ml: Baseline Cowrie + Isolation Forest (aporte original)
 - hp-artifice: Artifice (RNN SSH)
 - hp-honeygan: HoneyGAN equivalente
 - hp-cowrie-ml: Baseline Cowrie + Isolation Forest (aporte original)
