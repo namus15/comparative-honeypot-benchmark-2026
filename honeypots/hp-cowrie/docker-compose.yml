@@ -5,3 +5,7 @@ services:
     restart: unless-stopped
     ports:
       - "2222:2222/tcp"
+    volumes:
+      - cowrie-data:/cowrie/var/lib/cowrie/tty/
+volumes:
+  cowrie-data:
