@@ -1,6 +1,0 @@
-# Ignorar archivos sensibles
-inventory.ini
-*.log
-*.json  # solo si no quieres subir logs grandes
-__pycache__/
-*.zip   # si no quieres subir ZIP grandes
