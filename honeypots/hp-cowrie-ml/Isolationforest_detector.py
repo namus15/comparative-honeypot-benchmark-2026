@@ -1,112 +1,89 @@
 # isolationforest_detector.py
-# Baseline ML ligero para Cowrie: Detección de anomalías + mutación automática de banners
-# Autor: Dr. Giovanni Carlos Lorusso Montiel (2026)
-# Licencia: CC-BY-4.0
+# Baseline propio: detección de anomalías con Isolation Forest + mutación de banners
+# Autor: Giovanni Carlos Lorusso Montiel (2026)
 
 import json
 import time
-import random
-import os
 from datetime import datetime
+import numpy as np
 from sklearn.ensemble import IsolationForest
-from sklearn.preprocessing import StandardScaler
-import pandas as pd
+from cowrie.core import output
 
-# Configuración
-LOG_FILE = "/cowrie/var/log/cowrie/cowrie.json"
-CONFIG_FILE = "/cowrie/etc/cowrie.cfg"
-BANNERS = [
-    "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.1",
-    "SSH-2.0-OpenSSH_9.3p1 Debian-3deb12u1",
-    "SSH-2.0-OpenSSH_7.6p1 Ubuntu-4ubuntu0.7",
-    "SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.3"
-]
-MUTATION_THRESHOLD = 500  # Mutar cada 500 sesiones
-ANOMALY_THRESHOLD = 10    # Mutar si >10 anomalías seguidas
-CONTAMINATION = 0.1       # % esperado de anomalías
-TRAINING_SAMPLES = 200    # Mínimo para entrenamiento
+class IsolationForestDetector(output.Output):
+    """
+    Detector de anomalías basado en Isolation Forest.
+    - Entrena con sesiones normales
+    - Detecta anomalías (pred = -1)
+    - Si streak de anomalías > 10 → muta banner SSH
+    """
 
-class CowrieMLBaseline:
     def __init__(self):
-        self.model = IsolationForest(contamination=CONTAMINATION, random_state=42)
-        self.scaler = StandardScaler()
-        self.session_count = 0
-        self.anomaly_streak = 0
-        self.train_data = []
-        self.last_mutation = 0
-        print(f"[{datetime.now()}] Baseline Cowrie + Isolation Forest iniciado")
+        self.model = IsolationForest(
+            contamination=0.1,          # 10% esperado de anomalías
+            n_estimators=100,
+            max_samples=256,
+            random_state=42
+        )
+        self.session_features = {}      # Almacena características por sesión
+        self.anomaly_streak = {}        # Contador de anomalías consecutivas
+        self.banner_list = [
+            "SSH-2.0-OpenSSH_9.3p1 Debian-3deb12u1",
+            "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.1",
+            "SSH-2.0-OpenSSH_7.6p1 Ubuntu-4ubuntu0.7",
+            "SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.3"
+        ]
+        self.banner_index = 0
 
-    def extract_features(self, event):
-        """Features: duración, comandos, bytes in/out"""
-        try:
-            duration = event.get('duration', 0)
-            commands = len(event.get('commands', []))
-            bytes_in = event.get('bytes_in', 0)
-            bytes_out = event.get('bytes_out', 0)
-            return [duration, commands, bytes_in + bytes_out]
-        except:
-            return [0, 0, 0]
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
+
+    def ocsf(self, data):
+        """Evento de Cowrie en formato OCSF"""
+        session = data.get("session", "unknown")
+        if session not in self.session_features:
+            self.session_features[session] = []
+            self.anomaly_streak[session] = 0
+
+        # Extraer características simples (ejemplo)
+        feature = [
+            data.get("duration", 0),
+            len(data.get("input", "")),
+            data.get("bytes_in", 0),
+            data.get("bytes_out", 0),
+            1 if "success" in data.get("eventid", "") else 0
+        ]
+
+        self.session_features[session].append(feature)
+
+        # Si hay suficientes muestras → predecir
+        if len(self.session_features[session]) >= 10:
+            X = np.array(self.session_features[session][-10:])
+            pred = self.model.fit_predict(X)
+            last_pred = pred[-1]
+
+            if last_pred == -1:
+                self.anomaly_streak[session] += 1
+                print(f"[ANOMALY DETECTED] Session {session} - Streak: {self.anomaly_streak[session]}")
+
+                if self.anomaly_streak[session] > 10:
+                    self.mutate_banner()
+                    self.anomaly_streak[session] = 0  # Reset
+            else:
+                self.anomaly_streak[session] = 0
 
     def mutate_banner(self):
-        """Mutar banner en config y reload Cowrie"""
-        new_banner = random.choice(BANNERS)
-        try:
-            with open(CONFIG_FILE, 'r') as f:
-                lines = f.readlines()
-            with open(CONFIG_FILE, 'w') as f:
-                for line in lines:
-                    if line.strip().startswith('version ='):
-                        f.write(f"version = {new_banner}\n")
-                    else:
-                        f.write(line)
-            os.system("pkill -HUP -f cowrie")  # Reload sin restart
-            print(f"[{datetime.now()}] Banner mutado a: {new_banner}")
-            self.last_mutation = self.session_count
-            self.anomaly_streak = 0
-        except Exception as e:
-            print(f"[{datetime.now()}] Error mutando banner: {e}")
+        """Muta el banner SSH para evadir fingerprinting"""
+        self.banner_index = (self.banner_index + 1) % len(self.banner_list)
+        new_banner = self.banner_list[self.banner_index]
+        print(f"[BANNER MUTATED] New banner: {new_banner}")
+        # Aquí va la lógica real para cambiar banner en Cowrie (via config o hook)
 
-    def run(self):
-        """Loop principal: monitorear logs en tiempo real"""
-        try:
-            with open(LOG_FILE, 'r') as f:
-                f.seek(0, os.SEEK_END)
-                while True:
-                    line = f.readline()
-                    if not line:
-                        time.sleep(0.5)
-                        continue
-                    try:
-                        event = json.loads(line.strip())
-                        if event.get('eventid') in ['cowrie.session.closed', 'cowrie.login.failed']:
-                            features = self.extract_features(event)
-                            self.session_count += 1
+    # Métodos requeridos por Cowrie Output
+    def write(self, data):
+        self.ocsf(data)
 
-                            self.train_data.append(features)
-
-                            if len(self.train_data) >= TRAINING_SAMPLES:
-                                df = pd.DataFrame(self.train_data[-TRAINING_SAMPLES:])
-                                scaled = self.scaler.fit_transform(df)
-                                self.model.fit(scaled)
-
-                                pred = self.model.predict([self.scaler.transform([features])])[0]
-                                if pred == -1:  # Anomalía
-                                    self.anomaly_streak += 1
-                                    print(f"[{datetime.now()}] Anomalía detectada (sesión {self.session_count})")
-                                else:
-                                    self.anomaly_streak = max(0, self.anomaly_streak - 1)
-
-                                # Mutación por threshold o streak
-                                if (self.anomaly_streak >= ANOMALY_THRESHOLD or 
-                                    self.session_count - self.last_mutation >= MUTATION_THRESHOLD):
-                                    self.mutate_banner()
-
-                    except Exception as e:
-                        print(f"[{datetime.now()}] Error procesando línea: {e}")
-        except Exception as e:
-            print(f"[{datetime.now()}] Error crítico: {e}")
-            time.sleep(10)
-
-if __name__ == "__main__":
-    detector = CowrieMLBaseline()
-    detector.run()
+    def log(self, *args, **kwargs):
+        pass
