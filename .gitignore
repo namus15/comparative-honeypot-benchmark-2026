@@ -1,0 +1,16 @@
+# Ignorar archivos sensibles y temporales
+inventory.ini
+*.log
+*.json  # si no se quiere subir logs grandes
+*.zip   # ZIPs con datos 
+*.pem   # claves privadas
+*.key
+*.p12
+*.pfx
+*.env
+*.pyc
+__pycache__/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
