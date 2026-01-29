@@ -1,0 +1,21 @@
+[ssh]
+listen_endpoints = tcp:2222:interface=0.0.0.0
+
+[output]
+enabled = jsonlog
+
+[output_jsonlog]
+enabled = true
+logfile = /cowrie/var/log/cowrie/cowrie.json
+
+[output_screen]
+enabled = false
+
+[output_forward]
+enabled = false
+
+# Integración con detector personalizado (Isolation Forest)
+[output_custom]
+enabled = true
+class = custom.isolationforest_detector.IsolationForestDetector
+module = /cowrie/src/isolationforest_detector.py

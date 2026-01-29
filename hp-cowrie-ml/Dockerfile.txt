@@ -1,0 +1,31 @@
+# Usa imagen oficial de Cowrie (2024.2 o superior)
+FROM cowrie/cowrie:latest
+
+# Instalar dependencias para Isolation Forest (scikit-learn)
+USER root
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    python3-pip \
+    python3-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instalar scikit-learn y numpy
+RUN pip3 install --no-cache-dir \
+    scikit-learn==1.5.2 \
+    numpy==1.26.4
+
+# Crear directorio para scripts personalizados
+RUN mkdir -p /cowrie/src
+
+# Copiar el detector (se monta via volume en docker-compose, pero lo dejamos aquí como fallback)
+COPY isolationforest_detector.py /cowrie/src/isolationforest_detector.py
+
+# Cambiar propietario a cowrie
+RUN chown -R cowrie:cowrie /cowrie/src
+
+# Volver a usuario cowrie
+USER cowrie
+
+# Comando por defecto (Cowrie)
+CMD ["/cowrie/run.sh"]
