@@ -1,30 +1,15 @@
+# Placeholder docker-compose.yml for Cowrie + Isolation Forest (final version coming soon)
 version: '3.8'
-
 services:
   cowrie-ml:
     build: .
-    container_name: cowrie-isolationforest
-    restart: unless-stopped
     ports:
-      - "2222:2222/tcp"          # Puerto SSH expuesto públicamente
+      - "2222:2222/tcp"
     volumes:
       - cowrie-data:/cowrie/var/lib/cowrie/
       - cowrie-logs:/cowrie/var/log/cowrie/
-      - ./isolationforest_detector.py:/cowrie/src/isolationforest_detector.py:ro
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
     environment:
-      - TZ=Europe/Berlin          # Zona horaria realista (Hetzner Alemania)
-      - COWRIE_LOG_LEVEL=INFO
-      - COWRIE_AUTH_CLASS=anon    # Autenticación anónima para honeypot
-      - COWRIE_HONEYPOT_ENABLED=1
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "2222"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
+      - TZ=Europe/Berlin
 volumes:
   cowrie-data:
   cowrie-logs:
